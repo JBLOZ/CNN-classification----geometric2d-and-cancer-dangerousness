@@ -5,15 +5,7 @@ Este repositorio contiene dos proyectos de clasificación de imágenes desarroll
 - **Shapes Data Classifier**: Una red neuronal convolucional sencilla para clasificar imágenes de formas geométricas en 2D.
 - **Skin Cancer Classification (Transfer Learning con ResNet-50)**: Un proyecto de transfer learning que adapta la red preentrenada ResNet-50 para clasificar imágenes de cáncer de piel en dos categorías: maligno y benigno.
 
-> **Nota:**  
-> Los archivos han cambiado de nombre recientemente:
-> - Dataset de formas: `2DgeometricShapesData.zip` (16.2 MB)  
-> - Modelo entrenado para formas: `trained2Dgeometricshapes.mat` (2.17 MB)  
-> - Script para clasificación de formas: `shapesDataClassifierIntegrated.m` (6.41 KB)  
-> - Script para clasificación de cáncer de piel: `skinCancerResNet50TransferLearning.m` (6.99 KB)  
-> - Modelo entrenado para cáncer de piel: `trainedSkinCancerResNet50.mat` (83.7 MB)
 
----
 
 ## Tabla de Contenidos
 
