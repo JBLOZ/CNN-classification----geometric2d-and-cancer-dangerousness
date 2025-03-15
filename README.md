@@ -34,7 +34,7 @@ Este repositorio ofrece ejemplos prácticos sobre cómo crear, entrenar y evalua
    Se utiliza una red neuronal convolucional construida desde cero para identificar y clasificar imágenes de formas geométricas, tales como círculos, cometas, paralelogramos, cuadrados, trapecios y triángulos. Este proyecto es ideal para comprender los fundamentos del diseño y entrenamiento de CNNs simples.
 
 2. **Clasificación de Cáncer de Piel (Transfer Learning):**  
-   Se aplica transfer learning usando la red preentrenada ResNet-50, originalmente entrenada en ImageNet, para distinguir entre lesiones malignas y benignas en imágenes dermatoscópicas. Se utiliza el dataset HAM10000 (u otro similar organizado en carpetas) para entrenar y evaluar el modelo.
+   Se aplica transfer learning usando la red preentrenada ResNet-50, originalmente entrenada en ImageNet, para distinguir entre lesiones malignas y benignas en imágenes dermatoscópicas. Se utiliza el dataset HAM10000 para entrenar y evaluar el modelo.
 
 ---
 
@@ -53,12 +53,11 @@ Este repositorio ofrece ejemplos prácticos sobre cómo crear, entrenar y evalua
 - **Dataset:**  
   El dataset se encuentra en el archivo `2DgeometricShapesData.zip` (16.2 MB).  
 - **Estructura Esperada:**  
-  Al ejecutar el script, si las carpetas `train`, `val` y `test` no existen, el programa extraerá `2DgeometricShapesData.zip`.  
-- **Organización Ideal:**
+  Al ejecutar el script, si las carpetas `train`, `val` y `test` no existen, el programa extraerá `2DgeometricShapesData.zip`.
+
 ### Skin Cancer Classification
 - **Dataset:**  
 Se espera que tengas organizadas las carpetas `train`, `val` y `test` para el problema de cáncer de piel.  
-- **Organización:**  
 Cada una de estas carpetas debe contener dos subcarpetas:
 - `malignant`
 - `benign`
