@@ -7,8 +7,9 @@ __pycache__/
 *.so
 
 # Distribution / packaging
-./resnet50_trained_model/dataverse_files.zip
-./resnet50_trained_model/skinCancerData.zip
+.resnet50_trained_model/dataverse_files.zip
+.resnet50_trained_model/skinCancerData.zip
+.resnet50_trained_model/resnet50_trained_model/alldata/
 .ds_store
 .Python
 build/
