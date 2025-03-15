@@ -1,0 +1,166 @@
+%% skinCancerResNet50TransferLearning.m
+% Script para realizar transfer learning sobre ResNet-50 y clasificar imágenes
+% de cáncer de piel (maligno vs benigno).
+%
+% Estructura del dataset (skinCancerData.zip o carpetas ya extraídas):
+%   - train: datos de entrenamiento
+%   - val: datos de validación
+%   - test: datos de prueba
+%
+% Cada carpeta contiene dos subcarpetas:
+%   malignant, benign
+%
+% Instrucciones:
+%   1. Coloca "skinCancerData.zip" en el directorio actual O asegúrate de tener las carpetas
+%      "train", "val" y "test" organizadas.
+%   2. Si existe "trainedSkinCancerResNet50.mat", se carga el modelo; de lo contrario, se
+%      carga la red preentrenada ResNet-50 (usando resnet50), se modifican
+%      sus capas para clasificación binaria, se entrena y se guarda.
+%   3. Se seleccionan 15 imágenes aleatorias del conjunto "test" y se muestra en la Command Window
+%      la etiqueta predicha, la confianza y un OK (si es correcta) o FAIL (si no lo es).
+%
+% Requisitos:
+%   - Deep Learning Toolbox
+%   - Deep Learning Toolbox Model for ResNet-50 support package
+%
+% Autor: [Tu Nombre]
+% Fecha: [Fecha]
+
+clear; clc; close all;
+
+%% COMPROBAR SI YA EXISTE EL MODELO ENTRENADO
+if isfile('trainedSkinCancerResNet50.mat')
+    load('trainedSkinCancerResNet50.mat', 'net');
+    fprintf('Modelo de cáncer de piel cargado desde trainedSkinCancerResNet50.mat\n');
+else
+    %% Extraer o utilizar dataset de cáncer de piel
+    if exist('skinCancerData.zip','file')
+        fprintf('Extrayendo skinCancerData.zip...\n');
+        unzip('skinCancerData.zip'); % Extrae en el directorio actual
+    else
+        fprintf('No se encontró skinCancerData.zip. Se asume que las carpetas "train", "val" y "test" ya existen.\n');
+    end
+    
+    %% Crear datastores para entrenamiento, validación y prueba
+    trainFolder = 'train';
+    valFolder   = 'val';
+    testFolder  = 'test';
+    
+    imdsTrain = imageDatastore(trainFolder, 'IncludeSubfolders', true, 'LabelSource', 'foldernames');
+    imdsVal   = imageDatastore(valFolder,   'IncludeSubfolders', true, 'LabelSource', 'foldernames');
+    imdsTest  = imageDatastore(testFolder,  'IncludeSubfolders', true, 'LabelSource', 'foldernames');
+    
+    %% Visualizar algunas imágenes de entrenamiento
+    figure;
+    tiledlayout('flow');
+    numImages = min(20, numel(imdsTrain.Files));
+    perm = randperm(numel(imdsTrain.Files), numImages);
+    for i = 1:numImages
+        nexttile;
+        img = imread(imdsTrain.Files{perm(i)});
+        imshow(img);
+        title(string(imdsTrain.Labels(perm(i))));
+    end
+    
+    %% Cargar la red preentrenada ResNet-50
+    fprintf('Cargando ResNet-50 preentrenada...\n');
+    baseNet = resnet50; % Usar la función incorporada para cargar la red preentrenada
+    inputSize = baseNet.Layers(1).InputSize;  % Debe ser [224 224 3]
+    
+    % Convertir a layer graph para modificar la arquitectura
+    lgraph = layerGraph(baseNet);
+    
+    % Definir las capas a eliminar: 'fc1000', 'fc1000_softmax' y la capa de clasificación final
+    layersToRemove = {'fc1000','fc1000_softmax'};
+    if any(strcmp({lgraph.Layers.Name},'ClassificationLayer_predictions'))
+        layersToRemove{end+1} = 'ClassificationLayer_predictions';
+    elseif any(strcmp({lgraph.Layers.Name},'ClassificationLayer_fc1000'))
+        layersToRemove{end+1} = 'ClassificationLayer_fc1000';
+    else
+        error('No se encontró la capa de clasificación final en ResNet-50.');
+    end
+    lgraph = removeLayers(lgraph, layersToRemove);
+    
+    % Añadir nuevas capas para clasificación binaria (malignant vs benign)
+    newLayers = [
+        fullyConnectedLayer(2, 'Name', 'fc_skinCancer', 'WeightLearnRateFactor',10, 'BiasLearnRateFactor',10)
+        softmaxLayer('Name', 'softmax_skinCancer')
+        classificationLayer('Name', 'ClassificationLayer_skinCancer')
+    ];
+    lgraph = addLayers(lgraph, newLayers);
+    
+    % Conectar las nuevas capas a la red
+    % En ResNet-50, la última capa de pooling se llama 'avg_pool'
+    lgraph = connectLayers(lgraph, 'avg_pool', 'fc_skinCancer');
+    
+    %% Crear augmentedImageDatastores para redimensionar las imágenes a [224 224]
+    augimdsTrain = augmentedImageDatastore(inputSize(1:2), imdsTrain);
+    augimdsVal   = augmentedImageDatastore(inputSize(1:2), imdsVal);
+    
+    %% Opciones de entrenamiento
+    options = trainingOptions('sgdm', ...
+        'MiniBatchSize', 32, ...
+        'MaxEpochs', 4, ...
+        'InitialLearnRate', 1e-4, ...
+        'Shuffle', 'every-epoch', ...
+        'ValidationData', augimdsVal, ...
+        'ValidationFrequency', 30, ...
+        'Verbose', false, ...
+        'Plots', 'training-progress');
+    
+    %% Entrenar la red
+    fprintf('Entrenando la red para clasificación de cáncer de piel...\n');
+    net = trainNetwork(augimdsTrain, lgraph, options);
+    
+    %% Guardar el modelo entrenado para usos futuros
+    save('trainedSkinCancerResNet50.mat', 'net');
+    fprintf('Modelo entrenado guardado en trainedSkinCancerResNet50.mat\n');
+end
+
+%% PROBAR EL MODELO EN 15 IMÁGENES ALEATORIAS DEL CONJUNTO DE TEST
+fprintf('\nRealizando pruebas en 15 imágenes aleatorias del conjunto de test:\n');
+% Usar el inputSize que ya tenemos (224x224x3)
+% Para las imágenes de test, se redimensionan manualmente en el bucle
+inputSize = net.Layers(1).InputSize;
+
+if ~isfolder(testFolder)
+    error('La carpeta "test" no se encontró.');
+end
+imdsTest = imageDatastore(testFolder, 'IncludeSubfolders', true, 'LabelSource', 'foldernames');
+
+numTestImages = min(15, numel(imdsTest.Files));
+perm = randperm(numel(imdsTest.Files), numTestImages);
+for i = 1:numTestImages
+    img = imread(imdsTest.Files{perm(i)});
+    % Redimensionar la imagen al tamaño esperado (224x224)
+    imgResized = imresize(img, inputSize(1:2));
+    if size(imgResized,3) ~= inputSize(3)
+        if inputSize(3)==1 && size(imgResized,3)==3
+            imgResized = rgb2gray(imgResized);
+        elseif inputSize(3)==3 && size(imgResized,3)==1
+            imgResized = repmat(imgResized, [1 1 3]);
+        end
+    end
+    
+    % Realizar la clasificación
+    predictedLabel = classify(net, imgResized);
+    predictedLabel = string(predictedLabel);
+    
+    % Obtener la etiqueta real (según la estructura de carpetas)
+    trueLabel = string(imdsTest.Labels(perm(i)));
+    
+    % Obtener la confianza de la predicción
+    scores = predict(net, imgResized);
+    maxScore = max(scores);
+    
+    % Comparar predicción y etiqueta real
+    if predictedLabel == trueLabel
+        status = 'OK';
+    else
+        status = 'FAIL';
+    end
+    
+    % Imprimir el resultado
+    fprintf('Imagen %d: Etiqueta predicha: %s, Confianza: %.2f%%, %s\n', ...
+        i, predictedLabel, maxScore*100, status);
+end
