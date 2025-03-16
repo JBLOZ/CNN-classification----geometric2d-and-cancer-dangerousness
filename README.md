@@ -327,5 +327,3 @@ Esto proporciona una evaluación rápida del rendimiento del modelo y permite un
 ---
 
 Este proyecto demuestra un enfoque integral para la clasificación de imágenes utilizando CNNs, desde modelos básicos construidos desde cero hasta implementaciones avanzadas de transfer learning que incorporan metadatos adicionales. El código está diseñado para ser modular, bien documentado e incluye aceleración GPU para un mejor rendimiento.
-
-Similar code found with 2 license types
