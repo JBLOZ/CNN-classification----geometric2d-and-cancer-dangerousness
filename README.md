@@ -22,34 +22,37 @@ Este repositorio contiene una implementación completa de Redes Neuronales Convo
 ```
 CNN-classification----geometric2d-and-cancer-dangerousness/
 ├── geometric_base_model/
-│   ├── train/                  # Conjunto de entrenamiento de formas geométricas
+│   ├── train/                          # Conjunto de entrenamiento de formas geométricas
 │   │   ├── circle/
 │   │   ├── kite/
 │   │   └── ...
-│   ├── val/                    # Conjunto de validación de formas geométricas
-│   ├── test/                   # Conjunto de prueba de formas geométricas
+│   ├── val/                            # Conjunto de validación de formas geométricas
+│   ├── test/                           # Conjunto de prueba de formas geométricas
+│   ├── trained2Dgeometricshapes.mat    # Modelo preentrenado
 │   └── shapesDataClassifierIntegrated.m
 │
 ├── resnet50_V(1)/
-│   ├── train/                  # Conjunto de entrenamiento de imágenes de cáncer de piel
+│   ├── train/                          # Conjunto de entrenamiento de imágenes de cáncer de piel
 │   │   ├── benign/
 │   │   └── malignant/
-│   ├── val/                    # Conjunto de validación de imágenes de cáncer de piel
-│   ├── test/                   # Conjunto de prueba de imágenes de cáncer de piel
-│   ├── alldata/                # Imágenes de cáncer de piel sin procesar
+│   ├── val/                            # Conjunto de validación de imágenes de cáncer de piel
+│   ├── test/                           # Conjunto de prueba de imágenes de cáncer de piel
 │   ├── HAM10000_metadata.csv
 │   ├── skinCancerResNet50.m
+│   ├── trainedSkinCancerResNet50.mat   # Modelo preentrenado
 │   └── division.py
 │
 └── resnet50_V(2)_CUDA_and_metadata/
-    ├── train/                  # Conjunto de entrenamiento de imágenes de cáncer de piel
+    ├── train/                          # Conjunto de entrenamiento de imágenes de cáncer de piel
     │   ├── benign/
     │   └── malignant/
-    ├── val/                    # Conjunto de validación de imágenes de cáncer de piel
-    ├── test/                   # Conjunto de prueba de imágenes de cáncer de piel
+    ├── val/                            # Conjunto de validación de imágenes de cáncer de piel
+    ├── test/                           # Conjunto de prueba de imágenes de cáncer de piel
     ├── HAM10000_metadata.csv
     ├── cudaSkinCancerResNet50_v2.m
+    ├── trainedSkinCancerResNet50_v2.mat
     └── division.py
+        
 ```
 
 ## Requisitos
