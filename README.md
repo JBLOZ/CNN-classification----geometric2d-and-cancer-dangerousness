@@ -1,153 +1,331 @@
-# Proyectos de Clasificación de Imágenes en MATLAB
+# Clasificación CNN: Formas Geométricas 2D y Clasificación de Cáncer de Piel
 
-Este repositorio contiene dos proyectos de clasificación de imágenes desarrollados en MATLAB. Cada proyecto utiliza una red neuronal para abordar un problema de clasificación distinto:
+Este repositorio contiene una implementación completa de Redes Neuronales Convolucionales (CNNs) para tareas de clasificación de imágenes. El proyecto incluye dos componentes principales:
 
-- **Shapes Data Classifier**: Una red neuronal convolucional sencilla para clasificar imágenes de formas geométricas en 2D.
-- **Skin Cancer Classification (Transfer Learning con ResNet-50)**: Un proyecto de transfer learning que adapta la red preentrenada ResNet-50 para clasificar imágenes de cáncer de piel en dos categorías: maligno y benigno.
-
-
+1. **Modelo Base Geométrico**: Una CNN construida desde cero para clasificar formas geométricas 2D
+2. **Modelos de Clasificación de Cáncer de Piel**: Dos implementaciones avanzadas usando transfer learning con ResNet-50
 
 ## Tabla de Contenidos
 
-- [Descripción General](#descripción-general)
-- [Requisitos](#requisitos)
-- [Instalación y Preparación del Dataset](#instalación-y-preparación-del-dataset)
-- [Shapes Data Classifier](#shapes-data-classifier)
-  - [Estructura del Dataset](#estructura-del-dataset-shapes)
-  - [Arquitectura de la Red](#arquitectura-de-la-red-shapes)
-  - [Uso del Programa](#uso-del-programa-shapes)
-- [Skin Cancer Classification (Transfer Learning)](#skin-cancer-classification-transfer-learning)
-  - [Dataset y Organización](#dataset-y-organización)
-  - [Transfer Learning con ResNet-50](#transfer-learning-con-resnet-50)
-  - [Uso del Programa](#uso-del-programa-skin-cancer)
-- [Ejecución y Pruebas](#ejecución-y-pruebas)
-- [Notas y Consideraciones Adicionales](#notas-y-consideraciones-adicionales)
-- [Contacto](#contacto)
+- Estructura del Proyecto
+- Requisitos
+- Clasificación de Formas Geométricas
+- Clasificación de Cáncer de Piel
+  - Implementación Básica (V1)
+  - Implementación Avanzada con Metadatos (V2)
+- Preprocesamiento de Datos
+- Evaluación de Rendimiento
+- Aceleración GPU
 
----
+## Estructura del Proyecto
 
-## Descripción General
-
-Este repositorio ofrece ejemplos prácticos sobre cómo crear, entrenar y evaluar modelos de clasificación de imágenes en MATLAB. Se abordan dos problemas distintos:
-
-1. **Clasificación de Formas Geométricas (2D):**  
-   Se utiliza una red neuronal convolucional construida desde cero para identificar y clasificar imágenes de formas geométricas, tales como círculos, cometas, paralelogramos, cuadrados, trapecios y triángulos. Este proyecto es ideal para comprender los fundamentos del diseño y entrenamiento de CNNs simples.
-
-2. **Clasificación de Cáncer de Piel (Transfer Learning):**  
-   Se aplica transfer learning usando la red preentrenada ResNet-50, originalmente entrenada en ImageNet, para distinguir entre lesiones malignas y benignas en imágenes dermatoscópicas. Se utiliza el dataset HAM10000 para entrenar y evaluar el modelo.
-
----
+```
+CNN-classification----geometric2d-and-cancer-dangerousness/
+├── geometric_base_model/
+│   ├── train/                  # Conjunto de entrenamiento de formas geométricas
+│   │   ├── circle/
+│   │   ├── kite/
+│   │   └── ...
+│   ├── val/                    # Conjunto de validación de formas geométricas
+│   ├── test/                   # Conjunto de prueba de formas geométricas
+│   └── shapesDataClassifierIntegrated.m
+│
+├── resnet50_V(1)/
+│   ├── train/                  # Conjunto de entrenamiento de imágenes de cáncer de piel
+│   │   ├── benign/
+│   │   └── malignant/
+│   ├── val/                    # Conjunto de validación de imágenes de cáncer de piel
+│   ├── test/                   # Conjunto de prueba de imágenes de cáncer de piel
+│   ├── alldata/                # Imágenes de cáncer de piel sin procesar
+│   ├── HAM10000_metadata.csv
+│   ├── skinCancerResNet50.m
+│   └── division.py
+│
+└── resnet50_V(2)_CUDA_and_metadata/
+    ├── train/                  # Conjunto de entrenamiento de imágenes de cáncer de piel
+    │   ├── benign/
+    │   └── malignant/
+    ├── val/                    # Conjunto de validación de imágenes de cáncer de piel
+    ├── test/                   # Conjunto de prueba de imágenes de cáncer de piel
+    ├── HAM10000_metadata.csv
+    ├── cudaSkinCancerResNet50_v2.m
+    └── division.py
+```
 
 ## Requisitos
 
-- **MATLAB** con el [Deep Learning Toolbox](https://www.mathworks.com/products/deep-learning.html).
-- Para el proyecto de *Transfer Learning*:
-  - [Deep Learning Toolbox Model for ResNet-50 support package](https://www.mathworks.com/matlabcentral/fileexchange/42950-resnet-50-pretrained-network)
-- Conexión a internet para descargar datasets y paquetes adicionales (si es necesario).
+- **MATLAB** (R2020b o más reciente recomendado)
+  - Deep Learning Toolbox
+  - Image Processing Toolbox
+  - Paquete de soporte Deep Learning Toolbox Model for ResNet-50
+- **Python** (para scripts de preprocesamiento de datos)
+  - pandas
+  - numpy
+  - scikit-learn
+  - shutil
+- **GPU compatible con CUDA** (opcional, para entrenamiento acelerado)
+
+## Clasificación de Formas Geométricas
+
+El clasificador de formas geométricas es una CNN construida desde cero para identificar seis formas diferentes: círculo, cometa, paralelogramo, cuadrado, trapecio y triángulo.
+
+### Arquitectura del Modelo
+
+```matlab
+layers = [
+    imageInputLayer(imgSize)
+    
+    convolution2dLayer(3,8, 'Padding', 'same')
+    batchNormalizationLayer
+    reluLayer
+    
+    maxPooling2dLayer(2, 'Stride', 2)
+    
+    convolution2dLayer(3,16, 'Padding', 'same')
+    batchNormalizationLayer
+    reluLayer
+    
+    maxPooling2dLayer(2, 'Stride', 2)
+    
+    convolution2dLayer(3,32, 'Padding', 'same')
+    batchNormalizationLayer
+    reluLayer
+    
+    fullyConnectedLayer(numClasses)
+    softmaxLayer
+    classificationLayer
+]
+```
+
+El modelo consta de tres bloques convolucionales con un número creciente de filtros (8 → 16 → 32), cada uno seguido de normalización por lotes, activación ReLU y max pooling. Las capas finales incluyen una capa totalmente conectada, activación softmax y salida de clasificación.
+
+### Parámetros de Entrenamiento
+
+```matlab
+options = trainingOptions('sgdm', ...
+    'InitialLearnRate', 0.01, ...
+    'MaxEpochs', 4, ...
+    'Shuffle', 'every-epoch', ...
+    'ValidationData', imdsVal, ...
+    'ValidationFrequency', 30, ...
+    'Plots', 'training-progress', ...
+    'Verbose', false, ...
+    'ExecutionEnvironment', executionEnv);
+```
+
+La red se entrena usando el optimizador Stochastic Gradient Descent with Momentum (SGDM) con una tasa de aprendizaje inicial de 0.01 durante 4 épocas.
+
+### Uso
+
+Para entrenar y evaluar el modelo de formas geométricas:
+
+1. Coloca el conjunto de datos en las carpetas apropiadas o asegúrate de que `2DgeometricShapesData.zip` esté en el directorio de trabajo
+2. Ejecuta el script shapesDataClassifierIntegrated.m
+3. El script automáticamente:
+   - Comprueba si existe un modelo pre-entrenado (`trained2Dgeometricshapes.mat`)
+   - Si no lo encuentra, entrena un nuevo modelo y lo guarda
+   - Evalúa el modelo en 15 imágenes aleatorias del conjunto de prueba
+
+## Clasificación de Cáncer de Piel
+
+El proyecto incluye dos implementaciones para la clasificación de cáncer de piel:
+
+### Implementación Básica (V1)
+
+La primera implementación utiliza transfer learning con ResNet-50 para clasificar lesiones cutáneas como benignas o malignas basándose únicamente en datos de imagen.
+
+#### Modificación de ResNet-50
+
+```matlab
+% Modify the ResNet-50 architecture for binary classification
+lgraph = layerGraph(baseNet);
+layersToRemove = {'fc1000','fc1000_softmax'};
+if any(strcmp({lgraph.Layers.Name},'ClassificationLayer_predictions'))
+    layersToRemove{end+1} = 'ClassificationLayer_predictions';
+elseif any(strcmp({lgraph.Layers.Name},'ClassificationLayer_fc1000'))
+    layersToRemove{end+1} = 'ClassificationLayer_fc1000';
+else
+    error('No se encontró la capa de clasificación final en ResNet-50.');
+end
+lgraph = removeLayers(lgraph, layersToRemove);
+
+% Add new layers for binary classification
+newLayers = [
+    fullyConnectedLayer(2, 'Name', 'fc_skinCancer', 'WeightLearnRateFactor',10, 'BiasLearnRateFactor',10)
+    softmaxLayer('Name', 'softmax_skinCancer')
+    classificationLayer('Name', 'ClassificationLayer_skinCancer')
+];
+lgraph = addLayers(lgraph, newLayers);
+lgraph = connectLayers(lgraph, 'avg_pool', 'fc_skinCancer');
+```
+
+La ResNet-50 preentrenada se modifica eliminando las capas de clasificación finales y reemplazándolas con capas adecuadas para la clasificación binaria (benigno vs maligno).
+
+#### Opciones de Entrenamiento
+
+```matlab
+options = trainingOptions('sgdm', ...
+    'MiniBatchSize', 32, ...
+    'MaxEpochs', 4, ...
+    'InitialLearnRate', 1e-4, ...
+    'Shuffle', 'every-epoch', ...
+    'ValidationData', augimdsVal, ...
+    'ValidationFrequency', 30, ...
+    'Verbose', false, ...
+    'Plots', 'training-progress');
+```
+
+El modelo se entrena usando SGDM con una tasa de aprendizaje pequeña (1e-4) para ajustar finamente la red preentrenada durante 4 épocas.
+
+### Implementación Avanzada con Metadatos (V2)
+
+La segunda implementación extiende la primera incorporando metadatos del paciente (edad y sexo) extraídos de los nombres de archivo de las imágenes para mejorar el rendimiento de la clasificación.
+
+#### Arquitectura de Red con Integración de Metadatos
+
+```matlab
+% Convert to layer graph for architecture modification
+lgraph = layerGraph(baseNet);
+lgraph = removeLayers(lgraph, layersToRemove);
+
+% Add flatten layer for the image branch
+flattenLayerImage = flattenLayer('Name','flatten_img');
+lgraph = addLayers(lgraph, flattenLayerImage);
+lgraph = connectLayers(lgraph, 'avg_pool', 'flatten_img');
+
+% Metadata branch
+metaLayers = [
+    featureInputLayer(2, 'Name','metadata_input','Normalization','none')
+    fullyConnectedLayer(16, 'Name','fc_metadata','WeightLearnRateFactor',10,'BiasLearnRateFactor',10)
+    reluLayer('Name','relu_metadata')
+];
+lgraph = addLayers(lgraph, metaLayers);
+
+% Fusion and final classification branch
+finalLayers = [
+    concatenationLayer(1,2,'Name','concat')
+    fullyConnectedLayer(2, 'Name','fc_skinCancer','WeightLearnRateFactor',10, 'BiasLearnRateFactor',10)
+    softmaxLayer('Name','softmax_skinCancer')
+    classificationLayer('Name','ClassificationLayer_skinCancer')
+];
+lgraph = addLayers(lgraph, finalLayers);
+
+% Connect both branches to the fusion layer
+lgraph = connectLayers(lgraph, 'flatten_img', 'concat/in1');
+lgraph = connectLayers(lgraph, 'relu_metadata', 'concat/in2');
+```
+
+Esta arquitectura tiene:
+1. Una rama de procesamiento de imágenes (ResNet-50)
+2. Una rama de procesamiento de metadatos (red totalmente conectada)
+3. Una capa de fusión que combina características de ambas ramas
+4. Capas finales de clasificación
+
+#### Extracción de Metadatos
+
+```matlab
+% Function to extract metadata from the filename
+function meta = parseMetadata(nameStr)
+    % Split the name using the separator ''
+    parts = split(nameStr, '');
+    age_val = NaN;
+    sex_val = NaN;
+    for i = 1:numel(parts)
+        part = parts{i};
+        if startsWith(part, 'age-')
+            ageStr = extractAfter(part, 'age-');
+            age_val = str2double(ageStr);
+        elseif startsWith(part, 'sex-')
+            sexStr = lower(extractAfter(part, 'sex-'));
+            if contains(sexStr, 'male')
+                sex_val = 1;
+            elseif contains(sexStr, 'female')
+                sex_val = 0;
+            else
+                sex_val = 0.5;
+            end
+        end
+    end
+    if isnan(age_val)
+        age_norm = 0;
+    else
+        age_norm = age_val / 100;
+    end
+    if isnan(sex_val)
+        sex_val = 0.5;
+    end
+    % Return column vector (2×1)
+    meta = [age_norm; sex_val];
+end
+```
+
+La función de extracción de metadatos analiza el nombre de archivo de la imagen para extraer información de edad y sexo:
+- La edad se normaliza dividiéndola por 100
+- El sexo se codifica como 1 (masculino), 0 (femenino) o 0.5 (desconocido)
+
+## Preprocesamiento de Datos
+
+El proyecto incluye scripts de Python (`division.py`) para:
+
+1. Dividir el conjunto de datos HAM10000 de cáncer de piel en conjuntos de entrenamiento, validación y prueba
+2. Categorizar imágenes en clases benignas o malignas
+3. Renombrar imágenes para incluir metadatos en el nombre del archivo
+
+### Categorización de Imágenes
+
+El script categoriza las lesiones cutáneas según el diagnóstico:
+- **Malignas**: queratosis actínica (akiec), carcinoma basocelular (bcc), melanoma (mel)
+- **Benignas**: queratosis benigna (bkl), nevos melanocíticos (nv), lesiones vasculares (vasc), dermatofibroma (df)
+
+### Proporción de División del Conjunto de Datos
+
+Los datos se dividen de la siguiente manera:
+- **Conjunto de entrenamiento**: 70% de los datos
+- **Conjunto de validación**: 15% de los datos
+- **Conjunto de prueba**: 15% de los datos
+
+### Extracción y Codificación de Metadatos
+
+En la versión 2, los nombres de archivo de las imágenes incluyen metadatos codificados:
+```
+ISIC_0027419__dx-bkl__dx_type-histo__age-80.0__sex-male__localization-scalp__dataset-vidir_modern.jpg
+```
+
+Este formato permite que el modelo acceda a la información del paciente directamente desde el nombre del archivo sin necesidad de consultar el archivo CSV durante el entrenamiento o la inferencia.
+
+## Aceleración GPU
+
+Ambas implementaciones verifican la disponibilidad de GPUs compatibles con CUDA y las utilizan cuando están disponibles:
+
+```matlab
+if gpuDeviceCount > 0
+    try
+        gpuDevice(1); % Select GPU 1
+        executionEnv = 'gpu';
+        fprintf('CUDA device detected. GPU will be used for training and testing.\n');
+    catch ME
+        executionEnv = 'cpu';
+        fprintf('Error trying to use CUDA: %s\nCPU will be used for training and testing.\n', ME.message);
+    end
+else
+    executionEnv = 'cpu';
+    fprintf('No CUDA device detected. CPU will be used for training and testing.\n');
+end
+```
+
+El entorno de ejecución ('gpu' o 'cpu') se pasa a las opciones de entrenamiento para determinar si se utilizará la aceleración GPU.
+
+## Evaluación de Rendimiento
+
+Todos los modelos se evalúan probándolos en un subconjunto de los datos de prueba (15 imágenes aleatorias). La salida muestra:
+- La etiqueta predicha
+- La puntuación de confianza (probabilidad)
+- Si la predicción fue correcta (OK) o incorrecta (FAIL)
+
+Esto proporciona una evaluación rápida del rendimiento del modelo y permite una retroalimentación inmediata sobre la precisión de la clasificación.
 
 ---
 
-## Instalación y Preparación del Dataset
+Este proyecto demuestra un enfoque integral para la clasificación de imágenes utilizando CNNs, desde modelos básicos construidos desde cero hasta implementaciones avanzadas de transfer learning que incorporan metadatos adicionales. El código está diseñado para ser modular, bien documentado e incluye aceleración GPU para un mejor rendimiento.
 
-### Shapes Data Classifier
-- **Dataset:**  
-  El dataset se encuentra en el archivo `2DgeometricShapesData.zip` (16.2 MB).  
-- **Estructura Esperada:**  
-  Al ejecutar el script, si las carpetas `train`, `val` y `test` no existen, el programa extraerá `2DgeometricShapesData.zip`.
-
-### Skin Cancer Classification
-- **Dataset:**  
-Se espera que tengas organizadas las carpetas `train`, `val` y `test` para el problema de cáncer de piel.  
-Cada una de estas carpetas debe contener dos subcarpetas:
-- `malignant`
-- `benign`
-
----
-
-## Shapes Data Classifier
-
-### Estructura del Dataset (Shapes)
-El dataset para formas geométricas debe estar organizado en carpetas separadas para cada clase. El script `shapesDataClassifierIntegrated.m` se encarga de:
-- Verificar la existencia del archivo `2DgeometricShapesData.zip` y de las carpetas `train`, `val` y `test`.
-- Extraer el dataset si las carpetas no existen.
-- Crear datastores de imágenes a partir de estas carpetas.
-
-### Arquitectura de la Red
-La red neuronal para clasificar las formas se construye de forma sencilla:
-- **Capa de Entrada:**  
-Ajusta el tamaño de la imagen según la primera imagen del conjunto, soportando imágenes en escala de grises o en color.
-- **Capas Convolucionales y de Pooling:**  
-La red consta de tres bloques, cada uno compuesto por una capa convolucional, normalización por lotes y una capa ReLU, seguidos por capas de max pooling para reducir la dimensión espacial.
-- **Capas Finales:**  
-Una capa totalmente conectada con un número de salidas igual al número de clases, seguida de una capa softmax y una capa de clasificación.
-
-### Uso del Programa (Shapes)
-- Ejecuta el script `shapesDataClassifierIntegrated.m` en MATLAB.
-- Si el archivo `trained2Dgeometricshapes.mat` ya existe, se cargará el modelo; de lo contrario, se extraerá `2DgeometricShapesData.zip` (si es necesario) y se entrenará la red.
-- Tras el entrenamiento, el script selecciona 15 imágenes aleatorias del conjunto `test` y muestra en la Command Window la etiqueta predicha, la confianza y el resultado (OK/FAIL).
-
----
-
-## Skin Cancer Classification (Transfer Learning)
-
-### Dataset y Organización
-El dataset para la clasificación de cáncer de piel (por ejemplo, HAM10000 o un dataset similar) debe estar organizado en carpetas `train`, `val` y `test`, cada una con dos subcarpetas: `malignant` y `benign`.
-
-### Transfer Learning con ResNet-50
-Para abordar el problema de clasificación de cáncer de piel, se utiliza transfer learning:
-- Se carga la red preentrenada **ResNet-50** utilizando la función `resnet50`.
-- Se transforma la red en un `layerGraph` para eliminar las últimas capas (originalmente diseñadas para 1000 clases de ImageNet).
-- Se añaden nuevas capas (una capa totalmente conectada, softmax y una capa de clasificación) para obtener una salida binaria.
-- Se utilizan `augmentedImageDatastore` para redimensionar automáticamente las imágenes al tamaño requerido (224×224×3) por ResNet-50.
-- Se entrena la red utilizando las imágenes de entrenamiento y se valida con el conjunto de validación.
-- El modelo entrenado se guarda en `trainedSkinCancerResNet50.mat` para evitar reentrenamientos innecesarios.
-
-### Uso del Programa (Skin Cancer)
-- Ejecuta el script `skinCancerResNet50TransferLearning.m` en MATLAB.
-- Si el archivo `trainedSkinCancerResNet50.mat` ya existe, se carga el modelo; de lo contrario, se extrae `skinCancerData.zip` (si es necesario) y se entrena el modelo.
-- El script crea datastores y redimensiona las imágenes.
-- Finalmente, se realizan 15 pruebas aleatorias en el conjunto `test`, mostrando la etiqueta predicha, la confianza y si la predicción es correcta (OK/FAIL).
-
----
-
-## Ejecución y Pruebas
-
-Para ejecutar cada proyecto, sigue estos pasos:
-
-1. **Clona el repositorio** en tu máquina.
-2. **Coloca los datasets correspondientes**:
- - Para **Shapes Data Classifier**: Coloca `2DgeometricShapesData.zip` en la raíz o asegúrate de que las carpetas `train`, `val` y `test` estén correctamente organizadas.
- - Para **Skin Cancer Classification**: Organiza las carpetas `train`, `val` y `test` con las subcarpetas `malignant` y `benign`, o coloca `skinCancerData.zip` en la raíz.
-3. Abre MATLAB y navega hasta el directorio del proyecto.
-4. Ejecuta el script correspondiente:
- - Para **Shapes Data Classifier**:  
-   ```matlab
-   shapesDataClassifierIntegrated
-   ```
-   El modelo entrenado se guardará como `trained2Dgeometricshapes.mat`.
- - Para **Skin Cancer Classification**:  
-   ```matlab
-   skinCancerResNet50TransferLearning
-   ```
-   El modelo entrenado se guardará como `trainedSkinCancerResNet50.mat`.
-5. Revisa la Command Window para ver los resultados del entrenamiento y de las pruebas aleatorias.
-
----
-
-## Notas y Consideraciones Adicionales
-
-- **Modelos Preentrenados y Transfer Learning:**  
-El uso de redes preentrenadas como ResNet-50 permite aprovechar características ya aprendidas de grandes conjuntos de datos (ImageNet) y adaptarlas a problemas específicos, reduciendo el tiempo de entrenamiento y mejorando la precisión.
-
-- **Optimización de Imágenes:**  
-Se utilizan `augmentedImageDatastore` para redimensionar imágenes en tiempo real, lo que facilita el manejo de datasets con imágenes de tamaños variados y garantiza la compatibilidad con la arquitectura de la red.
-
-- **Almacenamiento del Modelo:**  
-Una vez entrenado, el modelo se guarda en un archivo `.mat` (ya sea `trained2Dgeometricshapes.mat` o `trainedSkinCancerResNet50.mat`), evitando reentrenamientos innecesarios y permitiendo su reutilización en futuras ejecuciones.
-
-- **Evaluación del Modelo:**  
-Cada script incluye un bloque de pruebas que selecciona 15 imágenes aleatorias del conjunto de test y muestra los resultados de la predicción (etiqueta, confianza y verificación de exactitud).
-
-
-Este repositorio es una muestra práctica del uso de redes neuronales en MATLAB para la clasificación de imágenes, abarcando tanto soluciones simples (clasificación de formas) como técnicas avanzadas de transfer learning (clasificación de cáncer de piel). ¡Espero que te resulte de gran utilidad!
-
+Similar code found with 2 license types
