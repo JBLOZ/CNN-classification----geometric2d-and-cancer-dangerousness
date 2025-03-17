@@ -61,11 +61,7 @@ CNN-classification----geometric2d-and-cancer-dangerousness/
   - Deep Learning Toolbox
   - Image Processing Toolbox
   - Paquete de soporte Deep Learning Toolbox Model for ResNet-50
-- **Python** (para scripts de preprocesamiento de datos)
-  - pandas
-  - numpy
-  - scikit-learn
-  - shutil
+- **Python** (para scripts de preprocesamiento de datos, si se dsea clasificar y preparar los datos con otro random staged)
 - **GPU compatible con CUDA** (opcional, para entrenamiento acelerado)
 
 ## Clasificación de Formas Geométricas
