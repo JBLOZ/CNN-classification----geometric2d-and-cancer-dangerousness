@@ -50,18 +50,12 @@ TARGET_SIZE = [224 224];
 trainFolder = 'train';
 valFolder = 'val';
 testFolder = 'test';
-imdsTrain = imageDatastore(trainFolder, 'IncludeSubfolders', true, 'LabelSource', 'foldernames');
-imdsTrain.ReadFcn = @(f) readFcnMetadata(f, TARGET_SIZE); % Devuelve {imagen, metadatos}
-imdsVal = imageDatastore(valFolder, 'IncludeSubfolders', true, 'LabelSource', 'foldernames');
-imdsVal.ReadFcn = @(f) readFcnMetadata(f, TARGET_SIZE);
+
+
 imdsTest = imageDatastore(testFolder, 'IncludeSubfolders', true, 'LabelSource', 'foldernames');
 imdsTest.ReadFcn = @(f) readFcnMetadata(f, TARGET_SIZE);
 
-%% Preparar un datastore combinado para entrenamiento y validación
-dsTrain = combine(imdsTrain, arrayDatastore(imdsTrain.Labels));
-dsTrain = transform(dsTrain, @mergeData);
-dsVal = combine(imdsVal, arrayDatastore(imdsVal.Labels));
-dsVal = transform(dsVal, @mergeData);
+
 
 %% COMPROBAR SI YA EXISTE EL MODELO ENTRENADO CON METADATOS
 if isfile('trainedSkinCancerResNet50_v2.mat')
@@ -69,6 +63,15 @@ if isfile('trainedSkinCancerResNet50_v2.mat')
     fprintf('Modelo de cáncer de piel (con metadatos) cargado desde trainedSkinCancerResNet50_v2.mat\n');
     inputSize = net.Layers(1).InputSize; % Para la rama de imagen
 else
+    imdsTrain = imageDatastore(trainFolder, 'IncludeSubfolders', true, 'LabelSource', 'foldernames');
+    imdsTrain.ReadFcn = @(f) readFcnMetadata(f, TARGET_SIZE); % Devuelve {imagen, metadatos}
+    imdsVal = imageDatastore(valFolder, 'IncludeSubfolders', true, 'LabelSource', 'foldernames');
+    imdsVal.ReadFcn = @(f) readFcnMetadata(f, TARGET_SIZE);
+    %% Preparar un datastore combinado para entrenamiento y validación
+    dsTrain = combine(imdsTrain, arrayDatastore(imdsTrain.Labels));
+    dsTrain = transform(dsTrain, @mergeData);
+    dsVal = combine(imdsVal, arrayDatastore(imdsVal.Labels));
+    dsVal = transform(dsVal, @mergeData);
     %% Visualizar algunas imágenes de entrenamiento (sólo imágenes)
     figure;
     tiledlayout('flow');

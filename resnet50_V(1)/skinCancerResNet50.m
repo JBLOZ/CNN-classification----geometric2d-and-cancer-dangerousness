@@ -24,16 +24,28 @@
 %   - Deep Learning Toolbox
 %   - Deep Learning Toolbox Model for ResNet-50 support package
 %
-% Autor: [Tu Nombre]
-% Fecha: [Fecha]
 
 clear; clc; close all;
 
+
+%% Verificar disponibilidad de CUDA (GPU)
+if gpuDeviceCount > 0
+    try
+        gpuDevice(1); % Selecciona la GPU 1
+        executionEnv = 'gpu';
+        fprintf('Dispositivo CUDA detectado. Se usará GPU para entrenamiento y pruebas.\n');
+    catch ME
+        executionEnv = 'cpu';
+        fprintf('Error al intentar usar CUDA: %s\nSe usará CPU para entrenamiento y pruebas.\n', ME.message);
+    end
+else
+    executionEnv = 'cpu';
+    fprintf('No se detectó dispositivo CUDA. Se usará CPU para entrenamiento y pruebas.\n');
+end
 %% Definir rutas de carpetas
 trainFolder = 'train';
 valFolder   = 'val';
 testFolder  = 'test';
-docsFolder  = 'docs';  % Si aplica
 
 %% COMPROBAR SI YA EXISTE EL MODELO ENTRENADO
 if isfile('trainedSkinCancerResNet50.mat')
@@ -41,7 +53,7 @@ if isfile('trainedSkinCancerResNet50.mat')
     fprintf('Modelo de cáncer de piel cargado desde trainedSkinCancerResNet50.mat\n');
 else
     %% Verificar si ya existen las carpetas necesarias
-    if exist(trainFolder, 'dir') && exist(valFolder, 'dir') && exist(testFolder, 'dir') && exist(docsFolder, 'dir')
+    if exist(trainFolder, 'dir') && exist(valFolder, 'dir') && exist(testFolder, 'dir')
         fprintf('Las carpetas train, val, test y docs ya existen. No se descomprime skinCancerData.zip.\n');
     else
         if exist('skinCancerData.zip','file')
@@ -55,7 +67,6 @@ else
     %% Crear datastores para entrenamiento, validación y prueba
     imdsTrain = imageDatastore(trainFolder, 'IncludeSubfolders', true, 'LabelSource', 'foldernames');
     imdsVal   = imageDatastore(valFolder,   'IncludeSubfolders', true, 'LabelSource', 'foldernames');
-    imdsTest  = imageDatastore(testFolder,  'IncludeSubfolders', true, 'LabelSource', 'foldernames');
     
     %% Visualizar algunas imágenes de entrenamiento
     figure;
@@ -68,6 +79,10 @@ else
         imshow(img);
         title(string(imdsTrain.Labels(perm(i))));
     end
+    %% Mostrar cantidad de imágenes por categoría en el conjunto de entrenamiento
+    labelCount = countEachLabel(imdsTrain);
+    disp('Cantidad de imágenes por categoría (entrenamiento):');
+    disp(labelCount);
     
     %% Cargar la red preentrenada ResNet-50
     fprintf('Cargando ResNet-50 preentrenada...\n');

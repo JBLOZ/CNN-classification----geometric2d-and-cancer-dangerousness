@@ -22,8 +22,7 @@
 %
 % Requisitos: Deep Learning Toolbox.
 %
-% Autor: [Tu Nombre]
-% Fecha: [Fecha]
+
 
 clear; clc; close all;
 
