@@ -96,14 +96,8 @@ else
     % Convertir a layer graph para modificar la arquitectura
     lgraph = layerGraph(baseNet);
     % Eliminar las capas originales de clasificación
-    layersToRemove = {'fc1000','fc1000_softmax'};
-    if any(strcmp({lgraph.Layers.Name},'ClassificationLayer_predictions'))
-        layersToRemove{end+1} = 'ClassificationLayer_predictions';
-    elseif any(strcmp({lgraph.Layers.Name},'ClassificationLayer_fc1000'))
-        layersToRemove{end+1} = 'ClassificationLayer_fc1000';
-    else
-        error('No se encontró la capa de clasificación final en ResNet-50.');
-    end
+    layersToRemove = {'fc1000','fc1000_softmax','ClassificationLayer_fc1000'};
+
     lgraph = removeLayers(lgraph, layersToRemove);
     % Añadir capa de flatten para la rama de imagen
     flattenLayerImage = flattenLayer('Name','flatten_img');

@@ -93,14 +93,7 @@ else
     lgraph = layerGraph(baseNet);
     
     % Definir las capas a eliminar: 'fc1000', 'fc1000_softmax' y la capa de clasificación final
-    layersToRemove = {'fc1000','fc1000_softmax'};
-    if any(strcmp({lgraph.Layers.Name},'ClassificationLayer_predictions'))
-        layersToRemove{end+1} = 'ClassificationLayer_predictions';
-    elseif any(strcmp({lgraph.Layers.Name},'ClassificationLayer_fc1000'))
-        layersToRemove{end+1} = 'ClassificationLayer_fc1000';
-    else
-        error('No se encontró la capa de clasificación final en ResNet-50.');
-    end
+    layersToRemove = {'fc1000','fc1000_softmax','ClassificationLayer_fc1000'};
     lgraph = removeLayers(lgraph, layersToRemove);
     
     % Añadir nuevas capas para clasificación binaria (malignant vs benign)
@@ -147,30 +140,29 @@ if ~isfolder(testFolder)
 end
 imdsTest = imageDatastore(testFolder, 'IncludeSubfolders', true, 'LabelSource', 'foldernames');
 
-numTestImages = min(15, numel(imdsTest.Files));
+numTestImages = 15;
 perm = randperm(numel(imdsTest.Files), numTestImages);
 for i = 1:numTestImages
     img = imread(imdsTest.Files{perm(i)});
     % Redimensionar la imagen al tamaño esperado (224x224)
     imgResized = imresize(img, inputSize(1:2));
-    if size(imgResized,3) ~= inputSize(3)
-        if inputSize(3)==1 && size(imgResized,3)==3
-            imgResized = rgb2gray(imgResized);
-        elseif inputSize(3)==3 && size(imgResized,3)==1
-            imgResized = repmat(imgResized, [1 1 3]);
-        end
-    end
+    
     
     % Realizar la clasificación
-    predictedLabel = classify(net, imgResized);
-    predictedLabel = string(predictedLabel);
-    
-    % Obtener la etiqueta real (según la estructura de carpetas)
-    trueLabel = string(imdsTest.Labels(perm(i)));
-    
-    % Obtener la confianza de la predicción
     scores = predict(net, imgResized);
     maxScore = max(scores);
+    
+
+    if maxScore == scores(1)
+        predictedLabel = 'benign';
+    else
+        predictedLabel = "malignant";
+    end
+
+    
+    % Obtener la etiqueta real (según la estructura de carpetas)
+    trueLabel = imdsTest.Labels(perm(i));
+    
     
     % Comparar predicción y etiqueta real
     if predictedLabel == trueLabel
