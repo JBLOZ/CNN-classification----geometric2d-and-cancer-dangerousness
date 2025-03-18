@@ -111,7 +111,7 @@ else
     %% Crear augmentedImageDatastores para redimensionar las imágenes a [224 224]
 
     
-  %% Crear datastores para entrenamiento y validación
+   %% Crear datastores para entrenamiento y validación
 imdsTrain = imageDatastore(trainFolder, 'IncludeSubfolders', true, 'LabelSource', 'foldernames');
 imdsVal   = imageDatastore(valFolder,   'IncludeSubfolders', true, 'LabelSource', 'foldernames');
 
