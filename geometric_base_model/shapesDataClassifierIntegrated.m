@@ -148,19 +148,12 @@ fprintf('\nRealizando pruebas en 15 imágenes aleatorias del conjunto de test:\n
 inputSize = net.Layers(1).InputSize;
 classNames = categories(imdsTest.Labels);
 
-numTestImages = min(15, numel(imdsTest.Files));
+numTestImages = 15;
 perm = randperm(numel(imdsTest.Files), numTestImages);
 for i = 1:numTestImages
     img = imread(imdsTest.Files{perm(i)});
     % Redimensionar la imagen al tamaño esperado por la red
     imgResized = imresize(img, inputSize(1:2));
-    if size(imgResized,3) ~= inputSize(3)
-        if inputSize(3)==1 && size(imgResized,3)==3
-            imgResized = rgb2gray(imgResized);
-        elseif inputSize(3)==3 && size(imgResized,3)==1
-            imgResized = repmat(imgResized, [1 1 3]);
-        end
-    end
     
     % Realizar la predicción y obtener los scores
     scores = predict(net, imgResized);
@@ -181,3 +174,33 @@ for i = 1:numTestImages
     fprintf('Imagen %d: Etiqueta predicha: %s, Confianza: %.2f%%, %s\n', ...
         i, string(predictedLabel), maxScore*100, status);
 end
+%% Probar el modelo en todas las imágenes del conjunto de test
+fprintf('\nRealizando pruebas en todas las imágenes del conjunto de test:\n');
+inputSize = net.Layers(1).InputSize;
+classNames = categories(imdsTest.Labels);
+
+numTestImages = numel(imdsTest.Files);
+correctPredictions = 0;
+
+for i = 1:numTestImages
+    img = imread(imdsTest.Files{i});
+    % Redimensionar la imagen al tamaño esperado por la red
+    imgResized = imresize(img, inputSize(1:2));
+    
+    % Realizar la predicción y obtener los scores
+    scores = predict(net, imgResized);
+    [maxScore, idx] = max(scores);
+    predictedLabel = classNames(idx);
+    
+    % Obtener la etiqueta real del datastore
+    trueLabel = imdsTest.Labels(i);
+    
+    % Verificar si la predicción es correcta y sumar si es así
+    if predictedLabel == trueLabel
+        correctPredictions = correctPredictions + 1;
+    end
+end
+
+% Calcular y mostrar la precisión total
+accuracy = (correctPredictions / numTestImages) * 100;
+fprintf('Accuracy total en el conjunto de test: %.2f%%\n', accuracy);
