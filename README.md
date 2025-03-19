@@ -298,7 +298,6 @@ Realizando pruebas en todas las imágenes del conjunto de test:
 Accuracy total en el conjunto de test: 98.27%
 ```
 
-![Gráfica de Entrenamiento](docs/imagen2.png)
 
 
 # 2. Red de Detección de Tumores de Piel
