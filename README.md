@@ -4,7 +4,7 @@
 Señales y Sistemas
 
 
-![Imagen de Red Neuronal](docs/imagen.png)
+![Imagen de Red Neuronal](docs/imagen1.png)
 
 ## Autores
 
