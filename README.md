@@ -618,7 +618,7 @@ Los resultados vistos en las fotos, muestran el comportamiento global de la red 
 
 En la primera imagen, se ve un resumen donde la red se entrena para distinguir entre dos clases, con 5642 imágenes benignas y 1368 malignas en el conjunto de entrenamiento, lo que evidencia cierto desequilibrio de clases. Posteriormente y antes del entrenamiento este desequilibrio desaparece, al balancear el conjunto de imágenes a 1368 para cada clase. Al hacer esto, se consigue que el modelo consiga porcentajes de acierto razonables, en torno al 80% de especificidad y un 85% de sensibilidad de la prueba.
 
-```matlab
+```txt
 Cantidad de imágenes por categoría (entrenamiento):
     Label Count
     benign \quad 5642
