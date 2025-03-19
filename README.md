@@ -815,5 +815,5 @@ Documentación del ResNet-50 (Arquitectura de red para la clasificación de tumo
 
 Red Preentrenada (GoogLeNet):
 - [GoogLeNet Documentation](https://lamaquinaoraculo.com/deep-learning/googlenet/)
-```
+
 
