@@ -817,4 +817,3 @@ Red Preentrenada (GoogLeNet):
 - [GoogLeNet Documentation](https://lamaquinaoraculo.com/deep-learning/googlenet/)
 ```
 
-Este archivo `README.md` está diseñado para proporcionar una visión general del proyecto, explicar su propósito, y detallar los pasos y resultados de las prácticas realizadas. Puedes copiar y pegar este contenido en un archivo `README.md` en tu repositorio de GitHub para que los visitantes puedan entender rápidamente de qué trata tu proyecto y cómo se ha llevado a cabo.
