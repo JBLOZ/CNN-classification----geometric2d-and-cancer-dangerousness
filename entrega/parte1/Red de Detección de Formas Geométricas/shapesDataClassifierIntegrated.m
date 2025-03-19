@@ -26,7 +26,7 @@
 %   CAMBIAR EL NOMBRE DE ESTE ARCHIVO
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-% Requisitos: Deep Learning Toolbox.
+
 
 
 
