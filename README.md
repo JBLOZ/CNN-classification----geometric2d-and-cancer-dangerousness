@@ -271,11 +271,11 @@ fprintf('Accuracy total en el conjunto de test: %.2f%%\n', accuracy);
 
 A continuación, se puede observar una gráfica que corresponde con el progreso de entrenamiento de la red neuronal. El entrenamiento se completó tras alcanzar el número máximo de épocas (4 de 4), con un total de 280 iteraciones (70 por época) y una tasa de validación del 97.13%, lo que indica un alto rendimiento del modelo. El proceso tuvo una duración de 37 segundos (elapsed time), lo que sugiere una ejecución eficiente. La validación se realizó cada 30 iteraciones, permitiendo un monitoreo frecuente del desempeño. Además, se utilizó una tasa de aprendizaje constante de 0.01, lo que pudo contribuir a la estabilidad del entrenamiento.
 
-![Gráfica de Entrenamiento](https://via.placeholder.com/600)
+![Gráfica de Entrenamiento](docs/imagen2.png)
 
 El modelo se ejecutó en CPU debido a la ausencia de un dispositivo CUDA, pero aun así logró una precisión total del 98.27% en el conjunto de prueba, lo que indica un rendimiento sólido. En una prueba con 15 imágenes aleatorias, el modelo tuvo un alto nivel de confianza en la mayoría de sus predicciones, alcanzando el 100% en varios casos. Sin embargo, hubo un fallo en la imagen 6, donde la etiqueta predicha "trapezoid" tuvo una confianza del 98.99%, lo que sugiere que, aunque el modelo es preciso, puede presentar errores ocasionales incluso con altos niveles de confianza. A pesar de que la ejecución en CPU no parece haber afectado significativamente la precisión del modelo, su desempeño podría mejorar, como se ha mencionado, con aceleración GPU.
 
-```matlab
+```txt
 No se detectó dispositivo CUDA. Se usará CPU para entrenamiento y pruebas.
 Modelo entrenado encontrado y cargado desde trained2Dgeometricshapes.mat
 Realizando pruebas en 15 imágenes aleatorias del conjunto de test:
@@ -298,13 +298,16 @@ Realizando pruebas en todas las imágenes del conjunto de test:
 Accuracy total en el conjunto de test: 98.27%
 ```
 
+![Gráfica de Entrenamiento](docs/imagen2.png)
+
+
 # 2. Red de Detección de Tumores de Piel
 
 Una vez profundizado los conceptos de la red neuronal anterior, se explicará con detalle la estructura de la red que se ha implementado más tarde para la detección de tumores de piel, una práctica más enfocada en un área más realista y útil, como es el campo de la salud.
 
 ### a. Estructura de la Red
 
-![Estructura de la Red](https://via.placeholder.com/600)
+![Estructura de la Red](docs/imagen3.jpg)
 
 Para esto, se va utilizar la imagen anterior, en esta se muestra la arquitectura de la CNN resnet50.
 
@@ -649,7 +652,7 @@ En la segunda imagen, el gráfico de "Training Progress" muestra cómo evolucion
 
 La segunda gráfica, la pérdida, en la parte inferior confirma que la función objetivo va disminuyendo a medida que avanza el entrenamiento. Se aprecia que la pérdida en entrenamiento (línea naranja) cae de forma sostenida, mientras que la de validación (línea negra) también desciende, aunque puede presentar subidas puntuales que indican momentos en los que la red no generaliza tan bien o encuentra datos de validación algo más difíciles de clasificar. Aún así, el descenso global de la curva sugiere que el aprendizaje avanza de forma coherente.
 
-![Gráfica de Entrenamiento](https://via.placeholder.com/600)
+![Gráfica de Entrenamiento](docs/imagen5.png)
 
 De todo lo anterior, se puede deducir que el modelo tras varias iteraciones, converge hacia un punto donde logra resultados decentes en el conjunto de validación y posteriormente en el de test. Que el porcentaje de acierto sea algo mayor para las imágenes malignas que para las benignas podría relacionarse con las características de cada imagen o con el tamaño de cada una. La diferencia tampoco es radical, lo que sugiere que la red no se ha sesgado en exceso hacia una de las clases.
 
@@ -758,19 +761,19 @@ Para ejecutar el código explicado anteriormente se van a clasificar diferentes 
 
 - Coches
 
-![Coches](https://via.placeholder.com/300)
+![Coches](docs/imagen6.png)
 
 - León
 
-![León](https://via.placeholder.com/300)
+![León](docs/imagen7.png)
 
 - Pimientos
 
-![Pimientos](https://via.placeholder.com/300)
+![Pimientos](docs/imagen8.png)
 
 - Alnaca
 
-![Alnaca](https://via.placeholder.com/300)
+![Alnaca](docs/imagen9.png)
 
 Como se puede observar en las anteriores ejecuciones, el modelo ha logrado identificar con alta precisión diversas categorías, como automóviles, animales, comida y objetos. En la mayoría de los casos, la clasificación fue acertada con una probabilidad superior al 90%, lo que muestra un buen funcionamiento del modelo.
 
